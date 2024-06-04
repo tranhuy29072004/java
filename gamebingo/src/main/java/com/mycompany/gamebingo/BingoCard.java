@@ -6,41 +6,40 @@ package com.mycompany.gamebingo;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 /**
  *
  * @author TRAN HUY
  */
-public class BingoCard {
-    int randomNumber;
-    int[] numbers = new int[25];
-    public void generateCard() {
-        JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(250,250);
-        frame.setLayout(new GridLayout(5,5,0,0));
-        int index = 0; // biến này dùng để lưu các giá trị random vào mảng
-        for (int row = 0; row < 5; row++) 
-        {
-            for (int col = 0; col < 5; col++) 
-            {
-                randomNumber = new Random().nextInt(99) + 1; //tạo số từ 1 đến 99 gán vào biến randomNumber
-                numbers[index] = randomNumber; // Assign random number to the current position in numbers
-                index++; // Increment index for the next element in the array
-                JButton numberButton = new JButton(String.valueOf(randomNumber)); // tạo button với giá trị lấy từ randomNumber
-                frame.add(numberButton); // thêm các button vào gridlayout
-                
-            }
+public class BingoCard extends RandomArray{
+    private List<JButton> listButton ;
+    private RandomArray ra = new RandomArray();
+    // constructor
+    public BingoCard(){}
+    // method
+    public List<JButton> getCard(){
+        return listButton;
+    }
+    public RandomArray getRA(){
+        return ra;
+    }
+    public void newCard(JPanel jpn){
+        listButton =  new ArrayList<>();
+        ra.setArray();
+        int[] rdNumber = ra.getArray();
+        for(int i = 0;i<25;i++){
+            JButton btn = new JButton(String.valueOf(rdNumber[i]));
+            listButton.add(btn);
+            jpn.add(btn);
         }
-        frame.setVisible(true); 
     }
-        // Mark a number
-    public void markNumber(int number) {
-        
-    }
+    
 }
