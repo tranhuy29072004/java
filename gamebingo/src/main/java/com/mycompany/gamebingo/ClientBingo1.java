@@ -10,7 +10,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Random;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -21,16 +21,44 @@ import javax.swing.JTextArea;
  * @author TRAN HUY
  */
 public class ClientBingo1 extends javax.swing.JFrame {
-    
+    public static List<JButton> lBT;
     static BingoCard card = new BingoCard();
     static DataInputStream datain;
     static DataOutputStream dataout;
     static Socket sk;
+    static int[] rows = new int[5];
+    static int[] cols = new int[5];
+    static int mainCross = 0;
+    static int otherCross = 0;
+    static boolean[][] status = new boolean[5][5];
+    
+
+    private static void fillCard(String msgin) {
+        boolean check = false;
+        int x = Integer.parseInt(msgin);
+        
+        int[][] cn = card.getCardNumber();
+        for(int i = 0; i<5; i++){
+            for(int j = 0; j < 5;j++){
+                if(cn[i][j]==x){
+                    check = true;
+                    status[i][j] = true;
+                    rows[i]++;
+                    cols[j]++;
+                    if(i==j) mainCross++;
+                    if(i+j == 4) otherCross++;
+                    break;
+                }
+            }
+            if(check) break;
+        }
+    }
     /**
      * Creates new form ClientBingo1
      */
     public ClientBingo1() {
         initComponents();
+        card.newCard(jpn_card);
     }
 
     /**
@@ -43,33 +71,8 @@ public class ClientBingo1 extends javax.swing.JFrame {
     private void initComponents() {
 
         jpn_card = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
-        jButton7 = new javax.swing.JButton();
-        jButton8 = new javax.swing.JButton();
-        jButton9 = new javax.swing.JButton();
-        jButton10 = new javax.swing.JButton();
-        jButton11 = new javax.swing.JButton();
-        jButton12 = new javax.swing.JButton();
-        jButton13 = new javax.swing.JButton();
-        jButton14 = new javax.swing.JButton();
-        jButton15 = new javax.swing.JButton();
-        jButton16 = new javax.swing.JButton();
-        jButton17 = new javax.swing.JButton();
-        jButton18 = new javax.swing.JButton();
-        jButton19 = new javax.swing.JButton();
-        jButton20 = new javax.swing.JButton();
-        jButton21 = new javax.swing.JButton();
-        jButton22 = new javax.swing.JButton();
-        jButton23 = new javax.swing.JButton();
-        jButton24 = new javax.swing.JButton();
-        jButton25 = new javax.swing.JButton();
         btn_bingo = new javax.swing.JButton();
-        lb_client1 = new javax.swing.JLabel();
+        jNum = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         txt_field = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -77,97 +80,35 @@ public class ClientBingo1 extends javax.swing.JFrame {
         btn_send = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMaximumSize(new java.awt.Dimension(414, 485));
+        setMinimumSize(new java.awt.Dimension(414, 485));
+        setResizable(false);
+        setSize(new java.awt.Dimension(414, 485));
 
         jpn_card.setLayout(new java.awt.GridLayout(5, 5));
 
-        jButton1.setText("jButton1");
-        jpn_card.add(jButton1);
-
-        jButton2.setText("jButton1");
-        jpn_card.add(jButton2);
-
-        jButton3.setText("jButton1");
-        jpn_card.add(jButton3);
-
-        jButton4.setText("jButton1");
-        jpn_card.add(jButton4);
-
-        jButton5.setText("jButton1");
-        jpn_card.add(jButton5);
-
-        jButton6.setText("jButton1");
-        jpn_card.add(jButton6);
-
-        jButton7.setText("jButton1");
-        jpn_card.add(jButton7);
-
-        jButton8.setText("jButton1");
-        jpn_card.add(jButton8);
-
-        jButton9.setText("jButton1");
-        jpn_card.add(jButton9);
-
-        jButton10.setText("jButton1");
-        jpn_card.add(jButton10);
-
-        jButton11.setText("jButton1");
-        jpn_card.add(jButton11);
-
-        jButton12.setText("jButton1");
-        jpn_card.add(jButton12);
-
-        jButton13.setText("jButton1");
-        jpn_card.add(jButton13);
-
-        jButton14.setText("jButton1");
-        jpn_card.add(jButton14);
-
-        jButton15.setText("jButton1");
-        jpn_card.add(jButton15);
-
-        jButton16.setText("jButton1");
-        jpn_card.add(jButton16);
-
-        jButton17.setText("jButton1");
-        jpn_card.add(jButton17);
-
-        jButton18.setText("jButton1");
-        jpn_card.add(jButton18);
-
-        jButton19.setText("jButton1");
-        jpn_card.add(jButton19);
-
-        jButton20.setText("jButton1");
-        jpn_card.add(jButton20);
-
-        jButton21.setText("jButton1");
-        jpn_card.add(jButton21);
-
-        jButton22.setText("jButton1");
-        jpn_card.add(jButton22);
-
-        jButton23.setText("jButton1");
-        jpn_card.add(jButton23);
-
-        jButton24.setText("jButton1");
-        jpn_card.add(jButton24);
-
-        jButton25.setText("jButton1");
-        jpn_card.add(jButton25);
-
         btn_bingo.setFont(new java.awt.Font("Segoe UI Black", 1, 24)); // NOI18N
         btn_bingo.setText("BINGO");
+        btn_bingo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_bingoActionPerformed(evt);
+            }
+        });
 
-        lb_client1.setFont(new java.awt.Font("Segoe UI Black", 1, 36)); // NOI18N
-        lb_client1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lb_client1.setText("số");
-        lb_client1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 5, true));
+        jNum.setFont(new java.awt.Font("Segoe UI Black", 1, 36)); // NOI18N
+        jNum.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jNum.setText("số");
+        jNum.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 5, true));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI Black", 1, 18)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("BINGO: PLAYER 1");
 
-        txt_field.setText("jTextField1");
+        txt_field.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txt_fieldActionPerformed(evt);
+            }
+        });
 
         txt_area.setColumns(20);
         txt_area.setRows(5);
@@ -189,24 +130,22 @@ public class ClientBingo1 extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 402, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(12, 12, 12)
-                                .addComponent(jpn_card, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lb_client1, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(btn_bingo)))
-                            .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(txt_field, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(btn_send, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(jScrollPane1)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(layout.createSequentialGroup()
+                            .addGap(12, 12, 12)
+                            .addComponent(jpn_card, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(18, 18, 18)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jNum, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(btn_bingo)))
+                        .addGroup(layout.createSequentialGroup()
+                            .addContainerGap()
+                            .addComponent(txt_field, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(btn_send, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createSequentialGroup()
+                            .addContainerGap()
+                            .addComponent(jScrollPane1))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -217,7 +156,7 @@ public class ClientBingo1 extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(lb_client1, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jNum, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(92, 92, 92)
                         .addComponent(btn_bingo, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jpn_card, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE))
@@ -246,6 +185,16 @@ public class ClientBingo1 extends javax.swing.JFrame {
             System.out.print("msgout error");
         }
     }//GEN-LAST:event_btn_sendActionPerformed
+
+    private void txt_fieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_fieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_fieldActionPerformed
+
+    private void btn_bingoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_bingoActionPerformed
+        boolean check = bingoCheck();
+        if(check) txt_field.setText("win");
+        else changeButton();
+    }//GEN-LAST:event_btn_bingoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -291,48 +240,49 @@ public class ClientBingo1 extends javax.swing.JFrame {
                 while (!msgin.equals("exit"))
                 {
                     msgin = datain.readUTF();
-                    txt_area.setText(txt_area.getText().trim() + "\n Server:\t" + msgin); //hiện dữ liệu từ client lên msg_area
+                    fillCard(msgin);
+                    jNum.setText(msgin); //hiện dữ liệu từ client lên msg_area
                 }
             
             }
         catch (IOException e){}
-
+        lBT = card.getCard();
+        
         
     }
+    
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_bingo;
     private static javax.swing.JButton btn_send;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton10;
-    private javax.swing.JButton jButton11;
-    private javax.swing.JButton jButton12;
-    private javax.swing.JButton jButton13;
-    private javax.swing.JButton jButton14;
-    private javax.swing.JButton jButton15;
-    private javax.swing.JButton jButton16;
-    private javax.swing.JButton jButton17;
-    private javax.swing.JButton jButton18;
-    private javax.swing.JButton jButton19;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton20;
-    private javax.swing.JButton jButton21;
-    private javax.swing.JButton jButton22;
-    private javax.swing.JButton jButton23;
-    private javax.swing.JButton jButton24;
-    private javax.swing.JButton jButton25;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
-    private javax.swing.JButton jButton7;
-    private javax.swing.JButton jButton8;
-    private javax.swing.JButton jButton9;
     private javax.swing.JLabel jLabel1;
+    public static javax.swing.JLabel jNum;
     private javax.swing.JScrollPane jScrollPane1;
     private static javax.swing.JPanel jpn_card;
-    public static javax.swing.JLabel lb_client1;
     private static javax.swing.JTextArea txt_area;
     private static javax.swing.JTextField txt_field;
     // End of variables declaration//GEN-END:variables
+
+    private boolean bingoCheck() {
+        for(int i = 0;i<5;i++){
+            if(rows[i]==5||cols[i]==5){
+                return true;
+            }
+            
+        }
+        if (mainCross==5||otherCross==5) return true;
+        return false;
+    }
+
+    private void changeButton() {
+        List<JButton> jb = card.getCard();
+        for(int i=0;i<25;i++){
+            JButton btn = jb.get(i);
+            if(btn.getBackground().equals(new java.awt.Color(0, 0, 0))&&!status[i/5][i%5]){
+                btn.setBackground(new java.awt.Color(255,255,255));
+                btn.setForeground(new java.awt.Color(0,0,0));
+            }
+        }
+    }
 }
