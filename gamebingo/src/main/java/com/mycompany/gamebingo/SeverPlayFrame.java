@@ -4,27 +4,36 @@
  */
 package com.mycompany.gamebingo;
 
+import static com.mycompany.gamebingo.ServerFrame.datain;
+import static com.mycompany.gamebingo.ServerFrame.dataout;
+import static com.mycompany.gamebingo.ServerFrame.serverSocket;
+import static com.mycompany.gamebingo.ServerFrame.socket;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author TRAN HUY
  */
-public class SeverPlayFrame extends javax.swing.JFrame {
+public class SeverPlayFrame extends javax.swing.JFrame implements Runnable{
 
     static ServerSocket serverSocket;
     static Socket socket;
     static DataInputStream datainSV;
     static DataOutputStream dataoutSV;
+    
     /**
      * Creates new form SeverPlayFrame
      */
     public SeverPlayFrame() {
         initComponents();
+        
     }
 
     /**
@@ -36,7 +45,6 @@ public class SeverPlayFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
         btn_next = new javax.swing.JButton();
         btn_start = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
@@ -44,13 +52,13 @@ public class SeverPlayFrame extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         txt_SVarea = new javax.swing.JTextArea();
         btn_SVsend = new javax.swing.JButton();
+        jNum = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        jLabel1.setFont(new java.awt.Font("Segoe UI Black", 1, 36)); // NOI18N
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("số");
-        jLabel1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 5, true));
+        setMaximumSize(new java.awt.Dimension(383, 485));
+        setMinimumSize(new java.awt.Dimension(383, 485));
+        setResizable(false);
+        setSize(new java.awt.Dimension(383, 485));
 
         btn_next.setText("Next");
         btn_next.addActionListener(new java.awt.event.ActionListener() {
@@ -70,8 +78,6 @@ public class SeverPlayFrame extends javax.swing.JFrame {
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("BINGO SERVER");
 
-        txt_SVfield.setText("jTextField1");
-
         txt_SVarea.setColumns(20);
         txt_SVarea.setRows(5);
         jScrollPane1.setViewportView(txt_SVarea);
@@ -80,6 +86,17 @@ public class SeverPlayFrame extends javax.swing.JFrame {
         btn_SVsend.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_SVsendActionPerformed(evt);
+            }
+        });
+
+        jNum.setEditable(false);
+        jNum.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
+        jNum.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        jNum.setText("Số");
+        jNum.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), null));
+        jNum.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jNumActionPerformed(evt);
             }
         });
 
@@ -95,22 +112,19 @@ public class SeverPlayFrame extends javax.swing.JFrame {
                 .addGap(18, 18, 18))
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(txt_SVfield, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(btn_SVsend, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addComponent(jScrollPane1)))
-                        .addGroup(layout.createSequentialGroup()
-                            .addContainerGap()
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(txt_SVfield, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btn_SVsend, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(jScrollPane1)
                             .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(127, 127, 127)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(10, Short.MAX_VALUE))
+                        .addGap(132, 132, 132)
+                        .addComponent(jNum, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(10, 10, 10))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -118,8 +132,8 @@ public class SeverPlayFrame extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addComponent(jNum, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(32, 32, 32)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btn_start, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btn_next, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -134,9 +148,20 @@ public class SeverPlayFrame extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    int i = 0;
+    int[] random;
+    private void start(){
+        i = 0;
+        RandomArray ra = new RandomArray();
+        ra.setArrayServer();
+        random = ra.getArrayServer();
+        Thread t = new Thread(this);
+        t.start();
+        
+            
+    }
     private void btn_startActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_startActionPerformed
-        // TODO add your handling code here:
+        start();
     }//GEN-LAST:event_btn_startActionPerformed
 
     private void btn_SVsendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_SVsendActionPerformed
@@ -156,6 +181,10 @@ public class SeverPlayFrame extends javax.swing.JFrame {
     private void btn_nextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_nextActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btn_nextActionPerformed
+
+    private void jNumActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jNumActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jNumActionPerformed
 
     /**
      * @param args the command line arguments
@@ -186,23 +215,23 @@ public class SeverPlayFrame extends javax.swing.JFrame {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new SeverPlayFrame().setVisible(true);
             }
         });
-        
         String msgin = "";
         try
         {
-            serverSocket = new ServerSocket(8080); // server chạy ở port 8080
+            
+            serverSocket = new ServerSocket(8080);// server chạy ở port 8080
             socket = serverSocket.accept(); // server chấp nhận kết nối
             datainSV = new DataInputStream(socket.getInputStream());
             dataoutSV = new DataOutputStream(socket.getOutputStream());
-            
             while (!msgin.equals("exit"))
             {
                 msgin = datainSV.readUTF();
-                txt_SVarea.setText(txt_SVarea.getText().trim() + "\n player:\t" + msgin); //hiện dữ liệu từ client lên msg_area
+                 txt_SVarea.setText(txt_SVarea.getText().trim() + "\n" + msgin); //hiện dữ liệu từ client lên msg_area
                 
             }
         }
@@ -210,16 +239,42 @@ public class SeverPlayFrame extends javax.swing.JFrame {
         {
             System.out.print("msgin error");
         }
+        
+      
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private static javax.swing.JButton btn_SVsend;
     public static javax.swing.JButton btn_next;
     public static javax.swing.JButton btn_start;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JTextField jNum;
     private javax.swing.JScrollPane jScrollPane1;
     private static javax.swing.JTextArea txt_SVarea;
     private static javax.swing.JTextField txt_SVfield;
     // End of variables declaration//GEN-END:variables
+    
+    @Override
+    public void run() {
+        
+        while(i<75){
+            jNum.setText(String.valueOf(random[i]));
+            try
+            { 
+                dataoutSV.writeUTF(String.valueOf(random[i]));
+            }
+            catch (IOException e)
+            {
+                System.out.print("msgout error");
+            }
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(SeverPlayFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            System.out.print(String.valueOf(random[i])+ " " );
+            
+            i++;
+        }
+    }
 }

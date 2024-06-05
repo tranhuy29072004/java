@@ -17,7 +17,7 @@ import java.net.Socket;
 public class ServerFrame extends javax.swing.JFrame {
 
     static ServerSocket serverSocket;
-    static Socket socket;
+    static Socket socket ;
     static DataInputStream datain;
     static DataOutputStream dataout;
     
@@ -50,6 +50,7 @@ public class ServerFrame extends javax.swing.JFrame {
 
         msg_text.setText("jTextField1");
 
+        msg_send.setForeground(new java.awt.Color(255, 51, 255));
         msg_send.setText("jButton1");
         msg_send.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -139,7 +140,8 @@ public class ServerFrame extends javax.swing.JFrame {
         String msgin = "";
         try
         {
-            serverSocket = new ServerSocket(8080); // server chạy ở port 8080
+            
+            serverSocket = new ServerSocket(8080);// server chạy ở port 8080
             socket = serverSocket.accept(); // server chấp nhận kết nối
             datain = new DataInputStream(socket.getInputStream());
             dataout = new DataOutputStream(socket.getOutputStream());
@@ -150,6 +152,7 @@ public class ServerFrame extends javax.swing.JFrame {
                 msg_area.setText(msg_area.getText().trim() + "\n" + msgin); //hiện dữ liệu từ client lên msg_area
                 
             }
+            
         }
         catch (IOException e)
         {

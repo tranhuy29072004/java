@@ -22,6 +22,7 @@ import javax.swing.JTextArea;
 public class BingoCard extends RandomArray{
     private List<JButton> listButton ;
     private RandomArray ra = new RandomArray();
+    private int[][] cardNumber = new int[5][5];
     // constructor
     public BingoCard(){}
     // method
@@ -31,12 +32,34 @@ public class BingoCard extends RandomArray{
     public RandomArray getRA(){
         return ra;
     }
+    public int[][] getCardNumber(){
+        return cardNumber;
+    }
     public void newCard(JPanel jpn){
+        
         listButton =  new ArrayList<>();
         ra.setArray();
         int[] rdNumber = ra.getArray();
         for(int i = 0;i<25;i++){
-            JButton btn = new JButton(String.valueOf(rdNumber[i]));
+            JButton btn  = new javax.swing.JButton();
+            btn.setText(String.valueOf(rdNumber[i]));
+            btn.setBackground(new java.awt.Color(255,255,255));
+            btn.setForeground(new java.awt.Color(0,0,0));
+            cardNumber[i/5][i%5] = rdNumber[i];
+            btn.addActionListener(new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    if(btn.getBackground().equals(new java.awt.Color(255, 255, 255)))
+                    {
+                        btn.setBackground(new java.awt.Color(0, 0, 0));
+                        btn.setForeground(new java.awt.Color(255,255,255));
+                    }
+                    else {
+                        btn.setBackground(new java.awt.Color(255,255,255));
+                        btn.setForeground(new java.awt.Color(0,0,0));
+                    }
+                }
+            });
             listButton.add(btn);
             jpn.add(btn);
         }
